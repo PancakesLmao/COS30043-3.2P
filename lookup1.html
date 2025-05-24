@@ -23,19 +23,19 @@
         <h1 class="mt-5">Lookup App: Unit Search Filter</h1>
         <div class="row mt-3">
             <div class="col-md-4">
-                <label for="unit">Unit Code</label>
-                <input type="text" id="unit" class="form-control" placeholder="Enter unit name">
+                <label for="unitCode">Unit Code</label>
+                <input type="text" id="unitCode" class="form-control" placeholder="Enter unit name" v-model="codeFilter">
             </div>
             <div class="col-md-4">
-                <label for="search">Description</label>
-                <input type="text" id="search" class="form-control" placeholder="Search for unit">
+                <label for="descSearch">Description</label>
+                <input type="text" id="descSearch" class="form-control" placeholder="Search for unit" v-model="descFilter">
             </div>
             <div class="col-md-4">
                 <!-- A lits of options -->
                 <label for="filter">Unit Type:</label>
-                <div class="form-check" v-for="option in filterOptions" :key="option.value">
+                <div class="form-check" id="filter" v-for="option in filterOptions" :key="option.value">
                     <input class="form-check-input" type="radio" :id="option.value" :value="option.value"
-                        v-model="selectedOption" :aria-label="option.text">
+                        v-model="typeFilter" :aria-label="option.text">
                     <label class="form-check-label" :for="option.value">
                         {{ option.text }}
                     </label>
@@ -55,10 +55,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="unit in units" :key="unit.code">
+                            <tr v-for="unit in filteredUnits" :key="unit.code">
                                 <td>{{ unit.code }}</td>
                                 <td>{{ unit.desc }}</td>
-                                <td>{{ unit.cp }}</td>
+                                <td>{{ unit.cp.toFixed(2) }}</td>
                                 <td>{{ unit.type }}</td>
                             </tr>
                         </tbody>
@@ -67,49 +67,74 @@
             </div>
         </div>
     </div>
-        <script>
-            const { createApp } = Vue;
+    <script>
+        const { createApp } = Vue;
 
-            createApp({
-                data() {
-                    return {
-                        filterOptions: [
-                            { text: 'Core', value: 'core' },
-                            { text: 'Software Development', value: 'software_development' },
-                            { text: 'System Analysis', value: 'system_analysis' },
-                            { text: 'All', value: 'all' },
-                        ],
-                        selectedOption: 'all', //This is the default selected option
-                        units: [],
-                    };
-                },
-                mounted() {
-                    this.loadUnits();
-                },
-                methods: {
-                    loadUnits() {
-                        // I fetched from Github CDN
-                        fetch('https://cdn.jsdelivr.net/gh/PancakesLmao/COS30043-3.2P@master/assets/3_2_resource.txt')
-                            .then(response => response.text())
-                            .then(data => {
-                                try {
-                                    const jsonStr = data.replace(/'/g, '"')
-                                        .replace(/([a-zA-Z0-9_]+):/g, '"$1":');
-                                    this.units = JSON.parse(jsonStr);
-                                    console.log("API Debug: ", this.units);
-                                }
-                                catch (error) {
-                                    console.error('Error parsing data:', error);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error fetching data:', error);
-                            });
-                    }
+        createApp({
+            data() {
+                return {
+                    filterOptions: [
+                        { text: 'Core', value: 'Core' },
+                        { text: 'Software Development', value: 'Software Development' },
+                        { text: 'System Analysis', value: 'Systems Analysis' },
+                        { text: 'All', value: 'All' },
+                    ],
+                    typeFilter: 'All', //This is the default selected option
+                    codeFilter: '',
+                    descFilter: '',
+                    units: [],
+                };
+            },
+            computed: {
+                filteredUnits() {
+                    let result = this.units.filter(unit => {
+                        // THE VALUES IN FILTEROPTIONS MUTS MATCH THE UNIT TYPE OR ELSE IT WON'T DISPLAY
+
+                        const codeMatch = this.codeFilter === '' ||
+                            unit.code.toLowerCase().includes(this.codeFilter.toLowerCase());
+
+                        const descMatch = this.descFilter === '' ||
+                            unit.desc.toLowerCase().includes(this.descFilter.toLowerCase());
+
+                        const typeMatch = this.typeFilter === 'All' ||
+                            unit.type === this.typeFilter;
+
+                        return codeMatch && descMatch && typeMatch;
+                    });
+
+                    // Sort the result by description
+                    return result.sort((a, b) => {
+                        return a.desc.localeCompare(b.desc);
+                    });
                 }
-            }).mount('#app');
-        </script>
-        <script src="./js/bootstrap.min.js"></script>
+            },
+            mounted() {
+                this.loadUnits();
+            },
+            methods: {
+                loadUnits() {
+                    // I fetched from Github CDN
+                    fetch('https://cdn.jsdelivr.net/gh/PancakesLmao/COS30043-3.2P@master/assets/3_2_resource.txt')
+                        .then(response => response.text())
+                        .then(data => {
+                            try {
+                                const jsonStr = data.replace(/'/g, '"')
+                                    .replace(/([a-zA-Z0-9_]+):/g, '"$1":');
+                                this.units = JSON.parse(jsonStr);
+                                console.log("API Debug: ", this.units);
+                            }
+                            catch (error) {
+                                console.error('Error parsing data:', error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data:', error);
+                        });
+                }
+            }
+        }).mount('#app');
+    </script>
+    <script src="./js/bootstrap.min.js"></script>
 </body>
 
 </html>
