@@ -79,7 +79,7 @@
                             { text: 'System Analysis', value: 'system_analysis' },
                             { text: 'All', value: 'all' },
                         ],
-                        selectedOption: 'all',
+                        selectedOption: 'all', //This is the default selected option
                         units: [],
                     };
                 },
@@ -88,7 +88,8 @@
                 },
                 methods: {
                     loadUnits() {
-                        fetch('http://127.0.0.1:5500/week3/3_2P/framework/assets/3_2_resource.txt')
+                        // I fetched from Github CDN
+                        fetch('https://cdn.jsdelivr.net/gh/PancakesLmao/COS30043-3.2P@master/assets/3_2_resource.txt')
                             .then(response => response.text())
                             .then(data => {
                                 try {
