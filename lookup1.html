@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Enable in case you want to use CDN / Vuejs file corrupted -->
+    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="./js/vue.js"></script>
+    <!-- ENABLE BOOTSTRAP IF YOU NEED -->
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"
+        integrity="sha512-UDJtJXfzfsiPPgnI5S1000FPLBHMhvzAMX15I+qG2E2OAzC9P1JzUwJOfnypXiOH7MRPaqzhPbBGDNNj7zBfoA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js"
+        integrity="sha512-qWVvreMuH9i0DrugcOtifxdtZVBBL0X75r9YweXsdCHtXUidlctw7NXg5KVP3ITPtqZ2S575A0wFkvgS2anqSA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Look Up Unit</title>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <h1 class="mt-5">Lookup App: Unit Search Filter</h1>
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label for="unit">Unit Code</label>
+                <input type="text" id="unit" class="form-control" placeholder="Enter unit name">
+            </div>
+            <div class="col-md-4">
+                <label for="search">Description</label>
+                <input type="text" id="search" class="form-control" placeholder="Search for unit">
+            </div>
+            <div class="col-md-4">
+                <!-- A lits of options -->
+                <label for="filter">Unit Type:</label>
+                <div class="form-check" v-for="option in filterOptions" :key="option.value">
+                    <input class="form-check-input" type="radio" :id="option.value" :value="option.value"
+                        v-model="selectedOption" :aria-label="option.text">
+                    <label class="form-check-label" :for="option.value">
+                        {{ option.text }}
+                    </label>
+                </div>
+
+            </div>
+            <!-- Table section -->
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Unit Code</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Credit points</th>
+                                <th scope="col">Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="unit in units" :key="unit.code">
+                                <td>{{ unit.code }}</td>
+                                <td>{{ unit.desc }}</td>
+                                <td>{{ unit.cp }}</td>
+                                <td>{{ unit.type }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+        <script>
+            const { createApp } = Vue;
+
+            createApp({
+                data() {
+                    return {
+                        filterOptions: [
+                            { text: 'Core', value: 'core' },
+                            { text: 'Software Development', value: 'software_development' },
+                            { text: 'System Analysis', value: 'system_analysis' },
+                            { text: 'All', value: 'all' },
+                        ],
+                        selectedOption: 'all',
+                        units: [],
+                    };
+                },
+                mounted() {
+                    this.loadUnits();
+                },
+                methods: {
+                    loadUnits() {
+                        fetch('http://127.0.0.1:5500/week3/3_2P/framework/assets/3_2_resource.txt')
+                            .then(response => response.text())
+                            .then(data => {
+                                try {
+                                    const jsonStr = data.replace(/'/g, '"')
+                                        .replace(/([a-zA-Z0-9_]+):/g, '"$1":');
+                                    this.units = JSON.parse(jsonStr);
+                                    console.log("API Debug: ", this.units);
+                                }
+                                catch (error) {
+                                    console.error('Error parsing data:', error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching data:', error);
+                            });
+                    }
+                }
+            }).mount('#app');
+        </script>
+        <script src="./js/bootstrap.min.js"></script>
+</body>
+
+</html>
