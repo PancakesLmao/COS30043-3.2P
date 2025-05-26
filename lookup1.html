@@ -88,7 +88,7 @@
             computed: {
                 filteredUnits() {
                     let result = this.units.filter(unit => {
-                        // THE VALUES IN FILTEROPTIONS MUTS MATCH THE UNIT TYPE OR ELSE IT WON'T DISPLAY
+                        // THE VALUES IN FILTEROPTIONS MUST MATCH THE UNIT TYPE OR ELSE IT WON'T DISPLAY
 
                         const codeMatch = this.codeFilter === '' ||
                             unit.code.toLowerCase().includes(this.codeFilter.toLowerCase());
